@@ -1,5 +1,6 @@
 package com.weki.loginrestapi.controller;
 
+import com.weki.loginrestapi.dto.Base64Token;
 import com.weki.loginrestapi.dto.LoginDto;
 import com.weki.loginrestapi.dto.RegisterDto;
 import com.weki.loginrestapi.model.Role;
@@ -40,7 +41,7 @@ public class AuthController {
 
     @GetMapping("/authenticate")
     public String sayHello() {
-        return "Success";
+        return (new Base64Token("root", "root")).getToken();
     }
 
     @PostMapping("/auth/register")
@@ -51,6 +52,7 @@ public class AuthController {
         UserEntity user = new UserEntity();
         user.setUsername( registerDto.getUsername() );
         user.setPassword(passwordEncoder.encode(registerDto.getPassword()) );
+        user.setEmail(registerDto.getEmail());
 
         Role role = roleRepository.findByRole("USER");
         user.setRoles(Collections.singletonList(role));
