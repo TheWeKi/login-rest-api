@@ -1,21 +1,21 @@
 package com.weki.loginrestapi.model;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.FieldType;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
-import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "roles")
+@Document("roles")
 public class Role {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+
+    @MongoId(FieldType.OBJECT_ID)
+    private String id;
     private String role;
 
-    @ManyToMany(mappedBy = "roles")
-    private List<UserEntity> users;
 }
