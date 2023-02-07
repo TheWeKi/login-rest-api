@@ -6,6 +6,7 @@ import com.weki.loginrestapi.model.Role;
 import com.weki.loginrestapi.model.UserEntity;
 import com.weki.loginrestapi.repository.RoleRepository;
 import com.weki.loginrestapi.repository.UserRepository;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -44,7 +45,7 @@ public class AuthController {
     }
 
     @PostMapping("/auth/register")
-    public ResponseEntity<String> register(@RequestBody RegisterDto registerDto) {
+    public ResponseEntity<String> register(@Valid @RequestBody RegisterDto registerDto) {
         if( userRepository.existsByUsername(registerDto.getUsername()) ) {
             return new ResponseEntity<>( "User Already Exists", HttpStatus.BAD_REQUEST);
         }
@@ -63,7 +64,7 @@ public class AuthController {
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<String> register(@RequestBody LoginDto loginDto) {
+    public ResponseEntity<String> register(@Valid @RequestBody LoginDto loginDto) {
         var token = new UsernamePasswordAuthenticationToken(
           loginDto.getUsername(), loginDto.getPassword()
         );
