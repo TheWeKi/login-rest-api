@@ -1,5 +1,6 @@
 package com.weki.loginrestapi.controller;
 
+import com.weki.loginrestapi.JwtAuthenticationResource.JwtAuthenticationResource;
 import com.weki.loginrestapi.dto.LoginDto;
 import com.weki.loginrestapi.dto.RegisterDto;
 import com.weki.loginrestapi.model.Role;
@@ -14,12 +15,15 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
+
+
+record JwtResponse(String token) {}
+
 
 @RestController
 public class AuthController {
@@ -29,19 +33,15 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
-    public AuthController(UserRepository userRepository,
-                          RoleRepository roleRepository,
-                          PasswordEncoder passwordEncoder,
-                          AuthenticationManager authenticationManager) {
+    private final JwtAuthenticationResource jwtAuthenticationResource;
+
+    public AuthController(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder,
+                          AuthenticationManager authenticationManager, JwtAuthenticationResource jwtAuthenticationResource) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
-    }
-
-    @GetMapping("/authenticate")
-    public String sayHello() {
-        return "Hello, World";
+        this.jwtAuthenticationResource = jwtAuthenticationResource;
     }
 
     @PostMapping("/auth/register")
@@ -64,14 +64,11 @@ public class AuthController {
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<String> register(@Valid @RequestBody LoginDto loginDto) {
-        var token = new UsernamePasswordAuthenticationToken(
-          loginDto.getUsername(), loginDto.getPassword()
-        );
-        Authentication authentication = authenticationManager
-                .authenticate(token);
+    public ResponseEntity<JwtResponse> register(@Valid @RequestBody LoginDto loginDto) {
+        var token = new UsernamePasswordAuthenticationToken( loginDto.getUsername(), loginDto.getPassword() );
+        Authentication authentication = authenticationManager.authenticate(token);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return new ResponseEntity<>("Logged In", HttpStatus.OK);
+        return new ResponseEntity<>( new JwtResponse(jwtAuthenticationResource.createToken(authentication)), HttpStatus.OK );
     }
 
 }
